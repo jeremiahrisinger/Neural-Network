@@ -17,7 +17,9 @@ public class Logger<T extends BaseObject> {
         log(String.format("Start of method %s()", name));
     }
 
-    public void error(String message, Throwable e){
-        System.out.println(String.format("%s [%s] ERROR %s %s",LocalDate.now().toString(),this.clazz.getName(), message, e));
+    public void error(String message, Throwable e) {
+        System.err.println(String.format("%s [%s] ERROR %s %s", LocalDate.now().toString(), this.clazz.getName(),
+                message, e.getMessage()));
+        e.printStackTrace(System.err);
     }
 }
