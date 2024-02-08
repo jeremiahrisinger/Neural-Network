@@ -26,10 +26,13 @@ public class Logger<T extends BaseObject> {
     }
 
     private void log(String message) {
-        System.out.println(String.format("%s [%s] %s", LocalDate.now().toString(), this.clazz.getSimpleName(), message));
+        System.out
+                .println(String.format("%s [%s] %s", LocalDate.now().toString(), this.clazz.getSimpleName(), message));
     }
+
     private void err(String message) {
-        System.err.println(String.format("%s [%s] %s", LocalDate.now().toString(), this.clazz.getSimpleName(), message));
+        System.err
+                .println(String.format("%s [%s] %s", LocalDate.now().toString(), this.clazz.getSimpleName(), message));
     }
 
     public void logMethod(String name) {
@@ -39,20 +42,20 @@ public class Logger<T extends BaseObject> {
     }
 
     public void error(String message, Throwable e) {
-        if(LOG_ERROR){
+        if (LOG_ERROR) {
             err(String.format("[ERROR] %s \n%s", message, getStackTraceAsString(e)));
         }
     }
 
-    private String getStackTraceAsString(Throwable e){
+    private String getStackTraceAsString(Throwable e) {
         StringBuilder ret = new StringBuilder();
         StackTraceElement[] stackTrace = e.getStackTrace();
         ret.append("Stack Trace:\n");
         for (int i = 0; i < stackTrace.length; i++) {
             ret.append("\t").append(stackTrace[i].getClassName()).append(".")
-                .append(stackTrace[i].getMethodName()).append("() ")
-                .append(stackTrace[i].getFileName()).append(" @ Line: ")
-                .append(stackTrace[i].getLineNumber()).append("\n");
+                    .append(stackTrace[i].getMethodName()).append("() ")
+                    .append(stackTrace[i].getFileName()).append(" @ Line: ")
+                    .append(stackTrace[i].getLineNumber()).append("\n");
         }
 
         return ret.toString();
