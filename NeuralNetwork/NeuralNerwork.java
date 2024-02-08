@@ -1,5 +1,6 @@
 package NeuralNetwork;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public class NeuralNerwork extends BaseObject {
      */
     private Matrix calculateLayer(Matrix prevLayer, String weightName, String biasName) throws Exception {
         LOGGER.logMethod("calculateLayer");
-
+        LOGGER.debug(biasName);
         Matrix curentLayer = Matrix.dotProduct(matMap.get(weightName), prevLayer);
         curentLayer.add(matMap.get(biasName));
         curentLayer.sigmoid();
@@ -108,7 +109,7 @@ public class NeuralNerwork extends BaseObject {
      */
     private void calculateBackPropigation(Matrix currLayer, Matrix prevLayer, Matrix error, String weightName,
             String biasName) throws Exception {
-        LOGGER.log("calculateBackPropigation");
+        LOGGER.logMethod("calculateBackPropigation");
 
         Matrix gradient = prevLayer.dsigmoid();
         gradient.multiply(error);
@@ -133,7 +134,7 @@ public class NeuralNerwork extends BaseObject {
 
         for (int i = 0; i < epochs; i++) {
             int sampleN = (int) (Math.random() * X.length);
-            LOGGER.log(String.format("Sample [%s]", sampleN));
+            LOGGER.debug(String.format("Sample [%s]", sampleN));
             try {
                 this.train(X[sampleN], Y[sampleN]);
             } catch (Exception e) {
