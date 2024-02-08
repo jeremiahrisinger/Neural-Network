@@ -43,6 +43,7 @@ public class NeuralNerwork extends BaseObject {
 
     /**
      * This method will run one training cycle on the data in X and Y
+     * 
      * @see #calculateLayer(Matrix, String, String)
      * @see #calculateBackPropigation(Matrix, Matrix, Matrix, String, String)
      * @param X
@@ -72,7 +73,8 @@ public class NeuralNerwork extends BaseObject {
     }
 
     /**
-     * This method will calculate the current layer based on the previous layer, the weights, and biases
+     * This method will calculate the current layer based on the previous layer, the
+     * weights, and biases
      * associated with these layers
      * 
      * @param prevLayer
@@ -91,9 +93,11 @@ public class NeuralNerwork extends BaseObject {
     }
 
     /**
-     * Calculates the back propigation for the previous layer using the error matrix. The error matrix
-     * will show what is incorrect and by how much and then this method will adjust each weight and bias
-     * by that amount. 
+     * Calculates the back propigation for the previous layer using the error
+     * matrix. The error matrix
+     * will show what is incorrect and by how much and then this method will adjust
+     * each weight and bias
+     * by that amount.
      * 
      * @param currLayer
      * @param prevLayer
@@ -105,7 +109,7 @@ public class NeuralNerwork extends BaseObject {
     private void calculateBackPropigation(Matrix currLayer, Matrix prevLayer, Matrix error, String weightName,
             String biasName) throws Exception {
         LOGGER.log("calculateBackPropigation");
-        
+
         Matrix gradient = prevLayer.dsigmoid();
         gradient.multiply(error);
         gradient.multiply(learningRate);
@@ -117,7 +121,9 @@ public class NeuralNerwork extends BaseObject {
     }
 
     /**
-     * This method will run 'epochs' number of tranings on all the input data in X and Y
+     * This method will run 'epochs' number of tranings on all the input data in X
+     * and Y
+     * 
      * @param X
      * @param Y
      * @param epochs

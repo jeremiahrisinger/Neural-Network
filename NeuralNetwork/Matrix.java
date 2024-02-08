@@ -226,6 +226,7 @@ public class Matrix extends BaseObject {
 
     /**
      * This is a helper method to convert our matrix into a List<Double>.
+     * 
      * @return
      */
     public List<Double> toArray() {
