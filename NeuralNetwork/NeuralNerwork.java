@@ -122,6 +122,15 @@ public class NeuralNerwork extends BaseObject {
     }
 
     /**
+     * Overloaded fit method to allow different input type
+     * @see #fit(double[][], double[][], int)
+     * @param map
+     * @param epochs
+     */
+    public void fit(Map<String, double[][]> map, int epochs){
+        fit(map.get("INPUT"), map.get("ANSWERS"), epochs);        
+    }
+    /**
      * This method will run 'epochs' number of tranings on all the input data in X
      * and Y
      * 
