@@ -12,14 +12,14 @@ public class NeuralNerwork extends BaseObject {
     public static final String HIDDEN_BIAS = "HIDDEN_BIAS";
     public static final String OUTPUT_BIAS = "OUTPUT_BIAS";
 
-    Map<String, Matrix> matMap;
+    Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.01;
 
     public NeuralNerwork(int i, int h, int o) {
         matMap.put(INPUT_HIDDEN, new Matrix(h, i));
         matMap.put(HIDDEN_OUTPUT, new Matrix(o, h));
         matMap.put(HIDDEN_BIAS, new Matrix(h, 1));
-        matMap.put(HIDDEN_OUTPUT, new Matrix(o, 1));
+        matMap.put(OUTPUT_BIAS, new Matrix(o, 1));
     }
 
     /**

@@ -109,10 +109,10 @@ public class Matrix extends BaseObject {
     public static Matrix transpose(Matrix a) {
         LOGGER.logMethod("transpose");
 
-        Matrix ret = new Matrix(a.rows, a.columns);
+        Matrix ret = new Matrix(a.columns, a.rows);
         for (int r = 0; r < a.rows; r++) {
             for (int c = 0; c < a.columns; c++) {
-                ret.data[r][c] = a.data[c][r];
+                ret.data[c][r] = a.data[r][c];
             }
         }
 
