@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NeuralNerwork extends BaseObject {
-    private static final Logger<NeuralNerwork> LOGGER = new Logger<NeuralNerwork>(NeuralNerwork.class);
+public class NeuralNetwork extends BaseObject {
+    private static final Logger<NeuralNetwork> LOGGER = new Logger<NeuralNetwork>(NeuralNetwork.class);
 
     public static final String INPUT_HIDDEN = "INPUT_HIDDEN";
     public static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
@@ -15,7 +15,7 @@ public class NeuralNerwork extends BaseObject {
     Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.005;
 
-    public NeuralNerwork(int i, int h, int o) {
+    public NeuralNetwork(int i, int h, int o) {
         matMap.put(INPUT_HIDDEN, new Matrix(h, i));
         matMap.put(HIDDEN_OUTPUT, new Matrix(o, h));
         matMap.put(HIDDEN_BIAS, new Matrix(h, 1));
@@ -23,14 +23,14 @@ public class NeuralNerwork extends BaseObject {
     }
 
     /**
-     * This method will take the input for the {@link NeuralNerwork} and calculate
+     * This method will take the input for the {@link NeuralNetwork} and calculate
      * each layer of the network to make a predicion
      * 
      * @param x
      * @return
      * @throws Exception
      */
-    public List<Double> predict(double[] x) throws Exception {
+    public int predict(double[] x) throws Exception {
         LOGGER.logMethod("predict");
 
         Matrix input = Matrix.fromArray(x);
@@ -38,8 +38,7 @@ public class NeuralNerwork extends BaseObject {
         Matrix hidden = calculateLayer(input, INPUT_HIDDEN, HIDDEN_BIAS);
 
         Matrix output = calculateLayer(hidden, HIDDEN_OUTPUT, OUTPUT_BIAS);
-
-        return output.toArray();
+        return getAnswer(output.toArray());
     }
 
     /**
@@ -59,6 +58,7 @@ public class NeuralNerwork extends BaseObject {
         Matrix hidden = calculateLayer(input, INPUT_HIDDEN, HIDDEN_BIAS);
 
         Matrix output = calculateLayer(hidden, HIDDEN_OUTPUT, OUTPUT_BIAS);
+        //LOGGER.info(output.toString());
 
         Matrix target = Matrix.fromArray(Y);
 
@@ -152,5 +152,25 @@ public class NeuralNerwork extends BaseObject {
                 LOGGER.error("Error occured while trying to train Neural Network.", e);
             }
         }
+    }
+
+    /**
+     * This will return the number that is specified by the Neural Network.
+     * Translating each item in the array to a 1 or 0 with Math.round() and
+     * returning the highest value.
+     * 
+     * @param output
+     * @return
+     */
+    public static int getAnswer(List<Double> output) {
+        int maxIndex = 0;
+        Double maxValue = 0.0;
+        for (int i = 0; i < output.size(); i++) {
+            if (maxValue < output.get(i)){
+                maxValue = output.get(i);
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 }
