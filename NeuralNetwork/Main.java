@@ -3,23 +3,69 @@ package NeuralNetwork;
 import java.util.HashMap;
 
 public class Main extends BaseObject {
-
-    private static final int MAX_ADDEND_VALUE = 5;
-    private static final int OUTPUT_RANGE = 10;
-
-    private static final int NUM_OUTPUT_NODES = OUTPUT_RANGE + 1;
-    private static final int NUM_INPUT_NODES = 2;
-    private static final int NUM_HIDDEN_NODES = (NUM_INPUT_NODES * MAX_ADDEND_VALUE
-            + NUM_OUTPUT_NODES * MAX_ADDEND_VALUE) / 2;
-
-    private static final int NUMBER_OF_TRAINING_ATTEMPTS = 6000000;
-
-    private static final String ANSWERS = "ANSWERS";
-    private static final String INPUT = "INPUT";
-
     private static final Logger<Main> LOGGER = new Logger<Main>(Main.class);
 
+    /**
+     * Max input value for the Neural Network to use for calculation.
+     */
+    private static final int MAX_ADDEND_VALUE = 5;
+
+    /**
+     * Max range for the output will be 2 * {@link #MAX_ADDEND_VALUE}
+     */
+    private static final int OUTPUT_RANGE = MAX_ADDEND_VALUE * 2;
+
+    /**
+     * The number of output nodes will be 1 plus the {@link #OUTPUT_RANGE} because
+     * the output list will be 1 bigger than the highest number so zero is included.
+     */
+    private static final int NUM_OUTPUT_NODES = OUTPUT_RANGE + 1;
+
+    /**
+     * Adding only 2 numbers together, so the Neural Network will only have 2
+     * inputs.
+     */
+    private static final int NUM_INPUT_NODES = 2;
+
+    /**
+     * The number of hidden nodes must be larger than {@link #NUM_INPUT_NODES} and
+     * {@link #NUM_OUTPUT_NODES}. Currently equal to the max addend value multiplied
+     * by the average of input and output nodes (integer division).<br>
+     * 
+     * <pre>
+     * {@link #MAX_ADDEND_VALUE} * ({@link #NUM_INPUT_NODES} + {@link #NUM_OUTPUT_NODES}) / 2
+     * </pre>
+     */
+    private static final int NUM_HIDDEN_NODES = MAX_ADDEND_VALUE * (NUM_INPUT_NODES + NUM_OUTPUT_NODES) / 2;
+
+    /**
+     * The number of times the Neural Network will be trained on one of the input
+     * addend pairs.
+     */
+    private static final int NUMBER_OF_TRAINING_ATTEMPTS = 6000000;
+
+    /**
+     * String key for the Answer data map entry
+     */
+    private static final String ANSWERS = "ANSWERS";
+
+    /**
+     * String key for the Input data map entry
+     */
+    private static final String INPUT = "INPUT";
+
+    /**
+     * The inputs that will be used to train the Neural Network.
+     * 
+     * @see #getInputs(int)
+     */
     private static double[][] inputs = getInputs(MAX_ADDEND_VALUE);
+
+    /**
+     * The answers that will be used to train the Neural Network.
+     * 
+     * @see #calculateAnswers(double[][])
+     */
     private static double[][] answers = calculateAnswers(inputs);
 
     /**
@@ -82,6 +128,7 @@ public class Main extends BaseObject {
      * @return
      */
     private static double[][] getInputs(int i) {
+        LOGGER.logMethod("getInputs");
         double[][] ret = new double[(i + 1) * (i + 1) + 1][2];
         for (int j = 0; j < i + 1; j++) {
             for (int j2 = 0; j2 < i + 1; j2++) {
@@ -109,6 +156,8 @@ public class Main extends BaseObject {
      * @return
      */
     private static double[][] calculateAnswers(double[][] input) {
+        LOGGER.logMethod("calculateAnswers");
+
         double[][] answers = new double[inputs.length][11];
         for (int i = 0; i < input.length; i++) {
             int sum = 0;
