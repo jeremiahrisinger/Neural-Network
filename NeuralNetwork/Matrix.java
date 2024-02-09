@@ -3,6 +3,14 @@ package NeuralNetwork;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <h3>Matrix Class (extends BaseObject)</h3>
+ * <p>
+ * This is a class to hold, compare, and manipulate a double[][] matricies. This
+ * class was built to be used in a Neural Network.
+ * </p>
+ * 
+ */
 public class Matrix extends BaseObject {
     private static final Logger<Matrix> LOGGER = new Logger<Matrix>(Matrix.class);
 
@@ -242,18 +250,30 @@ public class Matrix extends BaseObject {
         return temp;
     }
 
-    public String toString(){
+    /**
+     * to String method for Matrix class. This will build a string in this format:
+     * 
+     * <pre>
+     *  {
+     *      1 [a, b, c, d,...]
+     *      2 [h, i,...]
+     *      ...
+     *      10 [...]
+     *  }
+     * </pre>
+     */
+    public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
 
         for (int r = 0; r < data.length; r++) {
             double[] ds = data[r];
             builder.append("\t").append(r).append(" [");
-            for (int i = 0; i < ds.length-1; i++) {
+            for (int i = 0; i < ds.length - 1; i++) {
                 builder.append(ds[i])
-                    .append(", ");
+                        .append(", ");
             }
-            builder.append(ds[ds.length-1]).append("]\n");
+            builder.append(ds[ds.length - 1]).append("]\n");
         }
         builder.append("}");
         return builder.toString();
