@@ -13,7 +13,7 @@ public class NeuralNerwork extends BaseObject {
     public static final String OUTPUT_BIAS = "OUTPUT_BIAS";
 
     Map<String, Matrix> matMap = new HashMap<>();
-    double learningRate = 0.01;
+    double learningRate = 0.005;
 
     public NeuralNerwork(int i, int h, int o) {
         matMap.put(INPUT_HIDDEN, new Matrix(h, i));
