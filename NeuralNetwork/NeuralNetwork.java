@@ -4,22 +4,60 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * <h3>Neural Network</h3>
+ * <p>
+ * This class contains a 10 piece map of nodes, error, weights, and biases.
+ * </p>
+ * Nodes
+ * <ul>
+ * <li>Input
+ * <li>Output
+ * <li>Hidden
+ * </ul>
+ * Weights
+ * <ul>
+ * <li>Input to Hidden
+ * <li>Hidden to Output
+ * </ul>
+ * Biases
+ * <ul>
+ * <li>Input to Hidden
+ * <li>Hidden to Output
+ * </ul>
+ * Errors
+ * <ul>
+ * <li>Error
+ * <li>Hidden Error
+ * <li>Target
+ * </ul>
+ */
 public class NeuralNetwork extends BaseObject {
+
     private static final Logger<NeuralNetwork> LOGGER = new Logger<NeuralNetwork>(NeuralNetwork.class);
 
-    public static final String INPUT_HIDDEN = "INPUT_HIDDEN";
-    public static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
-    public static final String HIDDEN_BIAS = "HIDDEN_BIAS";
-    public static final String OUTPUT_BIAS = "OUTPUT_BIAS";
+    private static final String INPUT = "INPUT";
+    private static final String OUTPUT = "OUTPUT";
+    private static final String HIDDEN = "HIDDEN";
+
+    private static final String INPUT_HIDDEN = "INPUT_HIDDEN";
+    private static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
+
+    private static final String HIDDEN_BIAS = "HIDDEN_BIAS";
+    private static final String OUTPUT_BIAS = "OUTPUT_BIAS";
+
+    private static final String TARGET = "TARGET";
+    private static final String ERROR = "ERROR";
+    private static final String HIDDEN_ERROR = "HIDDEN_ERROR";
 
     Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.005;
 
     public NeuralNetwork(int i, int h, int o) {
-        matMap.put(INPUT_HIDDEN, new Matrix(h, i));
-        matMap.put(HIDDEN_OUTPUT, new Matrix(o, h));
-        matMap.put(HIDDEN_BIAS, new Matrix(h, 1));
-        matMap.put(OUTPUT_BIAS, new Matrix(o, 1));
+        put(INPUT_HIDDEN, new Matrix(h, i));
+        put(HIDDEN_OUTPUT, new Matrix(o, h));
+        put(HIDDEN_BIAS, new Matrix(h, 1));
+        put(OUTPUT_BIAS, new Matrix(o, 1));
     }
 
     /**
@@ -33,12 +71,9 @@ public class NeuralNetwork extends BaseObject {
     public int predict(double[] x) throws Exception {
         LOGGER.logMethod("predict");
 
-        Matrix input = Matrix.fromArray(x);
+        calculateAllLayers(x);
 
-        Matrix hidden = calculateLayer(input, INPUT_HIDDEN, HIDDEN_BIAS);
-
-        Matrix output = calculateLayer(hidden, HIDDEN_OUTPUT, OUTPUT_BIAS);
-        return getAnswer(output.toArray());
+        return getAnswer(get(OUTPUT).toArray());
     }
 
     /**
@@ -53,24 +88,29 @@ public class NeuralNetwork extends BaseObject {
     public void train(double[] X, double[] Y) throws Exception {
         LOGGER.logMethod("train");
 
-        Matrix input = Matrix.fromArray(X);
+        put(TARGET, Matrix.fromArray(Y));
+        calculateAllLayers(X);
 
-        Matrix hidden = calculateLayer(input, INPUT_HIDDEN, HIDDEN_BIAS);
+        put(ERROR, Matrix.subtract(get(TARGET), get(OUTPUT)));
 
-        Matrix output = calculateLayer(hidden, HIDDEN_OUTPUT, OUTPUT_BIAS);
-        //LOGGER.info(output.toString());
+        calculateBackPropigation(HIDDEN, OUTPUT, ERROR, HIDDEN_OUTPUT, OUTPUT_BIAS);
 
-        Matrix target = Matrix.fromArray(Y);
+        put(HIDDEN_ERROR, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_OUTPUT)), get(ERROR)));
 
-        Matrix error = Matrix.subtract(target, output);
+        calculateBackPropigation(INPUT, HIDDEN, HIDDEN_ERROR, INPUT_HIDDEN, HIDDEN_BIAS);
+    }
 
-        calculateBackPropigation(hidden, output, error, HIDDEN_OUTPUT, OUTPUT_BIAS);
-
-        Matrix weightTarget = Matrix.transpose(matMap.get(HIDDEN_OUTPUT));
-        Matrix hidden_errors = Matrix.dotProduct(weightTarget, error);
-
-        calculateBackPropigation(input, hidden, hidden_errors, INPUT_HIDDEN, HIDDEN_BIAS);
-
+    /**
+     * This method is used to calculate the values for {@link #INPUT},
+     * {@link #HIDDEN}, {@link #OUTPUT}
+     * 
+     * @param X
+     * @throws Exception
+     */
+    private void calculateAllLayers(double[] X) throws Exception {
+        put(INPUT, Matrix.fromArray(X));
+        put(HIDDEN, calculateLayer(INPUT, INPUT_HIDDEN, HIDDEN_BIAS));
+        put(OUTPUT, calculateLayer(HIDDEN, HIDDEN_OUTPUT, OUTPUT_BIAS));
     }
 
     /**
@@ -84,11 +124,11 @@ public class NeuralNetwork extends BaseObject {
      * @return
      * @throws Exception
      */
-    private Matrix calculateLayer(Matrix prevLayer, String weightName, String biasName) throws Exception {
+    private Matrix calculateLayer(String prevLayer, String weightName, String biasName) throws Exception {
         LOGGER.logMethod("calculateLayer");
         LOGGER.debug(biasName);
-        Matrix curentLayer = Matrix.dotProduct(matMap.get(weightName), prevLayer);
-        curentLayer.add(matMap.get(biasName));
+        Matrix curentLayer = Matrix.dotProduct(get(weightName), get(prevLayer));
+        curentLayer.add(get(biasName));
         curentLayer.sigmoid();
         return curentLayer;
     }
@@ -107,18 +147,18 @@ public class NeuralNetwork extends BaseObject {
      * @param biasName
      * @throws Exception
      */
-    private void calculateBackPropigation(Matrix currLayer, Matrix prevLayer, Matrix error, String weightName,
+    private void calculateBackPropigation(String currLayer, String prevLayer, String error, String weightName,
             String biasName) throws Exception {
         LOGGER.logMethod("calculateBackPropigation");
 
-        Matrix gradient = prevLayer.dsigmoid();
-        gradient.multiply(error);
+        Matrix gradient = get(prevLayer).dsigmoid();
+        gradient.multiply(get(error));
         gradient.multiply(learningRate);
 
-        Matrix who_delta = Matrix.dotProduct(gradient, Matrix.transpose(currLayer));
+        Matrix who_delta = Matrix.dotProduct(gradient, Matrix.transpose(get(currLayer)));
 
-        matMap.get(weightName).add(who_delta);
-        matMap.get(biasName).add(gradient);
+        get(weightName).add(who_delta);
+        get(biasName).add(gradient);
     }
 
     /**
@@ -166,11 +206,31 @@ public class NeuralNetwork extends BaseObject {
         int maxIndex = 0;
         Double maxValue = 0.0;
         for (int i = 0; i < output.size(); i++) {
-            if (maxValue < output.get(i)){
+            if (maxValue < output.get(i)) {
                 maxValue = output.get(i);
                 maxIndex = i;
             }
         }
         return maxIndex;
+    }
+
+    /**
+     * Accessor put method for private use only.
+     * 
+     * @param name
+     * @param m
+     */
+    private void put(String name, Matrix m) {
+        matMap.put(name, m);
+    }
+
+    /**
+     * Accessor get method for private use only.
+     * 
+     * @param name
+     * @param m
+     */
+    private Matrix get(String name) {
+        return matMap.get(name);
     }
 }
