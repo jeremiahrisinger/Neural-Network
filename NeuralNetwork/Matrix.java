@@ -241,4 +241,21 @@ public class Matrix extends BaseObject {
         }
         return temp;
     }
+
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n");
+
+        for (int r = 0; r < data.length; r++) {
+            double[] ds = data[r];
+            builder.append("\t").append(r).append(" [");
+            for (int i = 0; i < ds.length-1; i++) {
+                builder.append(ds[i])
+                    .append(", ");
+            }
+            builder.append(ds[ds.length-1]).append("]\n");
+        }
+        builder.append("}");
+        return builder.toString();
+    }
 }
