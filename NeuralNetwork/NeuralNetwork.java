@@ -39,24 +39,31 @@ public class NeuralNetwork extends BaseObject {
     private static final String INPUT = "INPUT";
     private static final String OUTPUT = "OUTPUT";
     private static final String HIDDEN = "HIDDEN";
+    private static final String HIDDEN_2 = "HIDDEN_2";
 
     private static final String INPUT_HIDDEN = "INPUT_HIDDEN";
+    private static final String HIDDEN_HIDDEN_2 = "HIDDEN_HIDDEN_2";
     private static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
 
     private static final String HIDDEN_BIAS = "HIDDEN_BIAS";
+    private static final String HIDDEN_BIAS_2 = "HIDDEN_BIAS_2";
     private static final String OUTPUT_BIAS = "OUTPUT_BIAS";
 
     private static final String TARGET = "TARGET";
     private static final String ERROR = "ERROR";
-    private static final String HIDDEN_ERROR = "HIDDEN_ERROR";
+    private static final String HIDDEN_ERROR = "HIDDEN_ERROR";    
+    private static final String HIDDEN_ERROR_2 = "HIDDEN_ERROR_2";
+
 
     Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.005;
 
     public NeuralNetwork(int i, int h, int o) {
         put(INPUT_HIDDEN, new Matrix(h, i));
+        put(HIDDEN_HIDDEN_2, new Matrix(h, h));
         put(HIDDEN_OUTPUT, new Matrix(o, h));
         put(HIDDEN_BIAS, new Matrix(h, 1));
+        put(HIDDEN_BIAS_2, new Matrix(h, 1));
         put(OUTPUT_BIAS, new Matrix(o, 1));
     }
 
@@ -93,9 +100,13 @@ public class NeuralNetwork extends BaseObject {
 
         put(ERROR, Matrix.subtract(get(TARGET), get(OUTPUT)));
 
-        calculateBackPropigation(HIDDEN, OUTPUT, ERROR, HIDDEN_OUTPUT, OUTPUT_BIAS);
+        calculateBackPropigation(HIDDEN_2, OUTPUT, ERROR, HIDDEN_OUTPUT, OUTPUT_BIAS);
 
-        put(HIDDEN_ERROR, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_OUTPUT)), get(ERROR)));
+        put(HIDDEN_ERROR_2, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_OUTPUT)), get(ERROR)));
+
+        calculateBackPropigation(HIDDEN, HIDDEN_2, HIDDEN_ERROR_2, HIDDEN_HIDDEN_2, HIDDEN_BIAS_2);
+
+        put(HIDDEN_ERROR, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_HIDDEN_2)), get(HIDDEN_ERROR_2)));
 
         calculateBackPropigation(INPUT, HIDDEN, HIDDEN_ERROR, INPUT_HIDDEN, HIDDEN_BIAS);
     }
@@ -110,7 +121,8 @@ public class NeuralNetwork extends BaseObject {
     private void calculateAllLayers(double[] X) throws Exception {
         put(INPUT, Matrix.fromArray(X));
         put(HIDDEN, calculateLayer(INPUT, INPUT_HIDDEN, HIDDEN_BIAS));
-        put(OUTPUT, calculateLayer(HIDDEN, HIDDEN_OUTPUT, OUTPUT_BIAS));
+        put(HIDDEN_2, calculateLayer(HIDDEN, HIDDEN_HIDDEN_2, HIDDEN_BIAS_2));
+        put(OUTPUT, calculateLayer(HIDDEN_2, HIDDEN_OUTPUT, OUTPUT_BIAS));
     }
 
     /**
