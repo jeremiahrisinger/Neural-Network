@@ -42,7 +42,7 @@ public class Main extends BaseObject {
      * The number of times the Neural Network will be trained on one of the input
      * addend pairs.
      */
-    private static final int NUMBER_OF_TRAINING_ATTEMPTS = 6000000;
+    private static final int NUMBER_OF_TRAINING_ATTEMPTS = 600000;
 
     /**
      * String key for the Answer data map entry
@@ -86,7 +86,7 @@ public class Main extends BaseObject {
 
     /**
      * This method will run NeuralNetwork.predict on random inputs a
-     * 'numberOOfTests' amount of times and print out the result
+     * 'numberOfTests' amount of times and print out the result
      * 
      * @param nn
      * @param numberOfTests
@@ -168,5 +168,4 @@ public class Main extends BaseObject {
         }
         return answers;
     }
-
 }
