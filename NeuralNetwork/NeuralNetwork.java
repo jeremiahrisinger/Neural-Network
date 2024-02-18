@@ -37,42 +37,56 @@ public class NeuralNetwork extends BaseObject {
     private static final Logger<NeuralNetwork> LOGGER = new Logger<NeuralNetwork>(NeuralNetwork.class);
 
     private static final String INPUT = "INPUT";
-    private static final String OUTPUT = "OUTPUT";
-    private static final String HIDDEN = "HIDDEN";
+    private static final String HIDDEN_1 = "HIDDEN_1";
     private static final String HIDDEN_2 = "HIDDEN_2";
     private static final String HIDDEN_3 = "HIDDEN_3";
-
+    private static final String HIDDEN_4 = "HIDDEN_4";
+    private static final String HIDDEN_5 = "HIDDEN_5";
+    private static final String OUTPUT = "OUTPUT";
+    private static final String[] LAYERS = { INPUT, HIDDEN_1, HIDDEN_2, OUTPUT };
 
     private static final String INPUT_HIDDEN = "INPUT_HIDDEN";
     private static final String HIDDEN_HIDDEN_2 = "HIDDEN_HIDDEN_2";
     private static final String HIDDEN_HIDDEN_3 = "HIDDEN_HIDDEN_3";
+    private static final String HIDDEN_HIDDEN_4 = "HIDDEN_HIDDEN_4";
+    private static final String HIDDEN_HIDDEN_5 = "HIDDEN_HIDDEN_5";
     private static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
+    private static final String[] WEIGHTS = { INPUT_HIDDEN, HIDDEN_HIDDEN_2, HIDDEN_OUTPUT };
 
-    private static final String HIDDEN_BIAS = "HIDDEN_BIAS";
+    private static final String HIDDEN_BIAS_1 = "HIDDEN_BIAS_1";
     private static final String HIDDEN_BIAS_2 = "HIDDEN_BIAS_2";
     private static final String HIDDEN_BIAS_3 = "HIDDEN_BIAS_3";
+    private static final String HIDDEN_BIAS_4 = "HIDDEN_BIAS_4";
+    private static final String HIDDEN_BIAS_5 = "HIDDEN_BIAS_5";
     private static final String OUTPUT_BIAS = "OUTPUT_BIAS";
+    private static final String[] BIASES = { HIDDEN_BIAS_1, HIDDEN_BIAS_2, OUTPUT_BIAS };
 
     private static final String TARGET = "TARGET";
     private static final String ERROR = "ERROR";
-    private static final String HIDDEN_ERROR = "HIDDEN_ERROR";    
+    private static final String HIDDEN_ERROR_1 = "HIDDEN_ERROR_1";
     private static final String HIDDEN_ERROR_2 = "HIDDEN_ERROR_2";
     private static final String HIDDEN_ERROR_3 = "HIDDEN_ERROR_3";
-
-
+    private static final String HIDDEN_ERROR_4 = "HIDDEN_ERROR_4";
+    private static final String HIDDEN_ERROR_5 = "HIDDEN_ERROR_5";
+    private static final String[] ERRORS = { HIDDEN_ERROR_1, HIDDEN_ERROR_2, ERROR };
 
     Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.005;
 
     public NeuralNetwork(int i, int h, int o) {
-        put(INPUT_HIDDEN, new Matrix(h, i));
-        put(HIDDEN_HIDDEN_2, new Matrix(h, h));
-        put(HIDDEN_HIDDEN_3, new Matrix(h, h));
-        put(HIDDEN_OUTPUT, new Matrix(o, h));
-        put(HIDDEN_BIAS, new Matrix(h, 1));
-        put(HIDDEN_BIAS_2, new Matrix(h, 1));
-        put(HIDDEN_BIAS_3, new Matrix(h, 1));
-        put(OUTPUT_BIAS, new Matrix(o, 1));
+        // Set weights
+        put(WEIGHTS[0], new Matrix(h, i));
+        int j;
+        for (j = 1; j < WEIGHTS.length - 1; j++) {
+            put(WEIGHTS[j], new Matrix(h, h));
+        }
+        put(WEIGHTS[j], new Matrix(o, h));
+
+        // Set Biases
+        for (j = 0; j < BIASES.length - 1; j++) {
+            put(BIASES[j], new Matrix(h, 1));
+        }
+        put(BIASES[j], new Matrix(o, 1));
     }
 
     /**
@@ -108,34 +122,28 @@ public class NeuralNetwork extends BaseObject {
 
         put(ERROR, Matrix.subtract(get(TARGET), get(OUTPUT)));
 
-        calculateBackPropigation(HIDDEN_3, OUTPUT, ERROR, HIDDEN_OUTPUT, OUTPUT_BIAS);
+        int i;
+        for ( i = ERRORS.length-1; i > 0 ; i--) {
+            calculateBackPropigation(LAYERS[i], LAYERS[i+1], ERRORS[i], WEIGHTS[i], BIASES[i]);
+            put(ERRORS[i-1], Matrix.dotProduct(Matrix.transpose(get(WEIGHTS[i])), get(ERRORS[i])));
+        }
 
-        put(HIDDEN_ERROR_3, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_OUTPUT)), get(ERROR)));
-
-        calculateBackPropigation(HIDDEN_2, HIDDEN_3, HIDDEN_ERROR_3, HIDDEN_HIDDEN_3, HIDDEN_BIAS_3);
-
-        put(HIDDEN_ERROR_2, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_OUTPUT)), get(ERROR)));
-
-        calculateBackPropigation(HIDDEN, HIDDEN_2, HIDDEN_ERROR_2, HIDDEN_HIDDEN_2, HIDDEN_BIAS_2);
-
-        put(HIDDEN_ERROR, Matrix.dotProduct(Matrix.transpose(get(HIDDEN_HIDDEN_2)), get(HIDDEN_ERROR_2)));
-
-        calculateBackPropigation(INPUT, HIDDEN, HIDDEN_ERROR, INPUT_HIDDEN, HIDDEN_BIAS);
+        calculateBackPropigation(LAYERS[i], LAYERS[i+1], ERRORS[i], WEIGHTS[i], BIASES[i]);
     }
 
     /**
      * This method is used to calculate the values for {@link #INPUT},
-     * {@link #HIDDEN}, {@link #OUTPUT}
+     * {@link #HIDDEN_1}, {@link #OUTPUT}
      * 
      * @param X
      * @throws Exception
      */
     private void calculateAllLayers(double[] X) throws Exception {
         put(INPUT, Matrix.fromArray(X));
-        put(HIDDEN, calculateLayer(INPUT, INPUT_HIDDEN, HIDDEN_BIAS));
-        put(HIDDEN_2, calculateLayer(HIDDEN, HIDDEN_HIDDEN_2, HIDDEN_BIAS_2));
-        put(HIDDEN_3, calculateLayer(HIDDEN_2, HIDDEN_HIDDEN_3, HIDDEN_BIAS_3));
-        put(OUTPUT, calculateLayer(HIDDEN_3, HIDDEN_OUTPUT, OUTPUT_BIAS));
+        int i;
+        for (i = 1; i < LAYERS.length; i++) {
+            put(LAYERS[i], calculateLayer(LAYERS[i-1], WEIGHTS[i-1], BIASES[i-1]));
+        }
     }
 
     /**
@@ -193,7 +201,7 @@ public class NeuralNetwork extends BaseObject {
      * @param map
      * @param epochs
      */
-    public void fit(Map<String, double[][]> map, int epochs) {
+    public void fit(Map<String, double[][]> map, long epochs) {
         fit(map.get("INPUT"), map.get("ANSWERS"), epochs);
     }
 
@@ -205,10 +213,13 @@ public class NeuralNetwork extends BaseObject {
      * @param Y
      * @param epochs
      */
-    public void fit(double[][] X, double[][] Y, int epochs) {
+    public void fit(double[][] X, double[][] Y, long epochs) {
         LOGGER.logMethod("fit");
 
-        for (int i = 0; i < epochs; i++) {
+        for (long i = 0; i < epochs; i++) {
+            if ((i % (epochs / 100)) == 0) {
+                LOGGER.info(String.format("Percent completed: [%s]", (i * 100 / epochs) + "%"));
+            }
             int sampleN = (int) (Math.random() * X.length);
             LOGGER.debug(String.format("Sample [%s]", sampleN));
             try {
