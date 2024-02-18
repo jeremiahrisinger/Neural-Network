@@ -87,7 +87,7 @@ public class Main extends BaseObject {
         NeuralNetwork nn = new NeuralNetwork(NUM_INPUT_NODES, NUM_HIDDEN_NODES, NUM_HIDDEN_LAYERS, NUM_OUTPUT_NODES);
         nn.fit(addTraningData, NUMBER_OF_TRAINING_ATTEMPTS);
 
-        testNeuralNetwork(nn, 5, MAX_ADDEND_VALUE);
+        testNeuralNetwork(nn, 25, MAX_ADDEND_VALUE);
     }
 
     /**
