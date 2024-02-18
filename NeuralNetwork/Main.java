@@ -39,10 +39,16 @@ public class Main extends BaseObject {
     private static final int NUM_HIDDEN_NODES = MAX_ADDEND_VALUE * (NUM_INPUT_NODES + NUM_OUTPUT_NODES) / 2;
 
     /**
+     * The number of hidden layers in the Nerual Network. Set to 2 because this is a
+     * good number for doing addition computation
+     */
+    private static final int NUM_HIDDEN_LAYERS = 2;
+
+    /**
      * The number of times the Neural Network will be trained on one of the input
      * addend pairs.
      */
-    private static final int NUMBER_OF_TRAINING_ATTEMPTS = 600000;
+    private static final long NUMBER_OF_TRAINING_ATTEMPTS = 500000L;
 
     /**
      * String key for the Answer data map entry
@@ -78,7 +84,7 @@ public class Main extends BaseObject {
 
         HashMap<String, double[][]> addTraningData = getAdditionInputAndAnswerMap();
 
-        NeuralNetwork nn = new NeuralNetwork(NUM_INPUT_NODES, NUM_HIDDEN_NODES, NUM_OUTPUT_NODES);
+        NeuralNetwork nn = new NeuralNetwork(NUM_INPUT_NODES, NUM_HIDDEN_NODES, NUM_HIDDEN_LAYERS, NUM_OUTPUT_NODES);
         nn.fit(addTraningData, NUMBER_OF_TRAINING_ATTEMPTS);
 
         testNeuralNetwork(nn, 5, MAX_ADDEND_VALUE);

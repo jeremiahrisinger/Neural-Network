@@ -36,44 +36,19 @@ public class NeuralNetwork extends BaseObject {
 
     private static final Logger<NeuralNetwork> LOGGER = new Logger<NeuralNetwork>(NeuralNetwork.class);
 
-    private static final String INPUT = "INPUT";
-    private static final String HIDDEN_1 = "HIDDEN_1";
-    private static final String HIDDEN_2 = "HIDDEN_2";
-    private static final String HIDDEN_3 = "HIDDEN_3";
-    private static final String HIDDEN_4 = "HIDDEN_4";
-    private static final String HIDDEN_5 = "HIDDEN_5";
-    private static final String OUTPUT = "OUTPUT";
-    private static final String[] LAYERS = { INPUT, HIDDEN_1, HIDDEN_2, OUTPUT };
-
-    private static final String INPUT_HIDDEN = "INPUT_HIDDEN";
-    private static final String HIDDEN_HIDDEN_2 = "HIDDEN_HIDDEN_2";
-    private static final String HIDDEN_HIDDEN_3 = "HIDDEN_HIDDEN_3";
-    private static final String HIDDEN_HIDDEN_4 = "HIDDEN_HIDDEN_4";
-    private static final String HIDDEN_HIDDEN_5 = "HIDDEN_HIDDEN_5";
-    private static final String HIDDEN_OUTPUT = "HIDDEN_OUTPUT";
-    private static final String[] WEIGHTS = { INPUT_HIDDEN, HIDDEN_HIDDEN_2, HIDDEN_OUTPUT };
-
-    private static final String HIDDEN_BIAS_1 = "HIDDEN_BIAS_1";
-    private static final String HIDDEN_BIAS_2 = "HIDDEN_BIAS_2";
-    private static final String HIDDEN_BIAS_3 = "HIDDEN_BIAS_3";
-    private static final String HIDDEN_BIAS_4 = "HIDDEN_BIAS_4";
-    private static final String HIDDEN_BIAS_5 = "HIDDEN_BIAS_5";
-    private static final String OUTPUT_BIAS = "OUTPUT_BIAS";
-    private static final String[] BIASES = { HIDDEN_BIAS_1, HIDDEN_BIAS_2, OUTPUT_BIAS };
+    private static String[] LAYERS;
+    private static String[] WEIGHTS;
+    private static String[] BIASES;
+    private static String[] ERRORS;
 
     private static final String TARGET = "TARGET";
-    private static final String ERROR = "ERROR";
-    private static final String HIDDEN_ERROR_1 = "HIDDEN_ERROR_1";
-    private static final String HIDDEN_ERROR_2 = "HIDDEN_ERROR_2";
-    private static final String HIDDEN_ERROR_3 = "HIDDEN_ERROR_3";
-    private static final String HIDDEN_ERROR_4 = "HIDDEN_ERROR_4";
-    private static final String HIDDEN_ERROR_5 = "HIDDEN_ERROR_5";
-    private static final String[] ERRORS = { HIDDEN_ERROR_1, HIDDEN_ERROR_2, ERROR };
 
     Map<String, Matrix> matMap = new HashMap<>();
     double learningRate = 0.005;
 
-    public NeuralNetwork(int i, int h, int o) {
+    public NeuralNetwork(int i, int h, int l, int o) {
+        loadLayerKeys(l);
+
         // Set weights
         put(WEIGHTS[0], new Matrix(h, i));
         int j;
@@ -90,6 +65,33 @@ public class NeuralNetwork extends BaseObject {
     }
 
     /**
+     * Loads all the key names of the maps based of the given number of hidden
+     * layers
+     * 
+     * @param l
+     */
+    private void loadLayerKeys(int l) {
+        LOGGER.logMethod("loadLayerKeys");
+        
+        LAYERS = new String[l + 2];
+        for (int i = 0; i < LAYERS.length; i++) {
+            LAYERS[i] = "L" + String.valueOf(i);
+        }
+        BIASES = new String[l + 1];
+        for (int i = 0; i < BIASES.length; i++) {
+            BIASES[i] = "B" + String.valueOf(i);
+        }
+        WEIGHTS = new String[l + 1];
+        for (int i = 0; i < WEIGHTS.length; i++) {
+            WEIGHTS[i] = "W" + String.valueOf(i);
+        }
+        ERRORS = new String[l + 1];
+        for (int i = 0; i < ERRORS.length; i++) {
+            ERRORS[i] = "E" + String.valueOf(i);
+        }
+    }
+
+    /**
      * This method will take the input for the {@link NeuralNetwork} and calculate
      * each layer of the network to make a predicion
      * 
@@ -102,7 +104,7 @@ public class NeuralNetwork extends BaseObject {
 
         calculateAllLayers(x);
 
-        return getAnswer(get(OUTPUT).toArray());
+        return getAnswer(get(LAYERS[LAYERS.length - 1]).toArray());
     }
 
     /**
@@ -120,29 +122,28 @@ public class NeuralNetwork extends BaseObject {
         put(TARGET, Matrix.fromArray(Y));
         calculateAllLayers(X);
 
-        put(ERROR, Matrix.subtract(get(TARGET), get(OUTPUT)));
+        put(ERRORS[ERRORS.length - 1], Matrix.subtract(get(TARGET), get(LAYERS[LAYERS.length - 1])));
 
         int i;
-        for ( i = ERRORS.length-1; i > 0 ; i--) {
-            calculateBackPropigation(LAYERS[i], LAYERS[i+1], ERRORS[i], WEIGHTS[i], BIASES[i]);
-            put(ERRORS[i-1], Matrix.dotProduct(Matrix.transpose(get(WEIGHTS[i])), get(ERRORS[i])));
+        for (i = ERRORS.length - 1; i > 0; i--) {
+            calculateBackPropigation(LAYERS[i], LAYERS[i + 1], ERRORS[i], WEIGHTS[i], BIASES[i]);
+            put(ERRORS[i - 1], Matrix.dotProduct(Matrix.transpose(get(WEIGHTS[i])), get(ERRORS[i])));
         }
 
-        calculateBackPropigation(LAYERS[i], LAYERS[i+1], ERRORS[i], WEIGHTS[i], BIASES[i]);
+        calculateBackPropigation(LAYERS[i], LAYERS[i + 1], ERRORS[i], WEIGHTS[i], BIASES[i]);
     }
 
     /**
-     * This method is used to calculate the values for {@link #INPUT},
-     * {@link #HIDDEN_1}, {@link #OUTPUT}
+     * This method is used to calculate the values for every layer in the network
      * 
      * @param X
      * @throws Exception
      */
     private void calculateAllLayers(double[] X) throws Exception {
-        put(INPUT, Matrix.fromArray(X));
+        put(LAYERS[0], Matrix.fromArray(X));
         int i;
         for (i = 1; i < LAYERS.length; i++) {
-            put(LAYERS[i], calculateLayer(LAYERS[i-1], WEIGHTS[i-1], BIASES[i-1]));
+            put(LAYERS[i], calculateLayer(LAYERS[i - 1], WEIGHTS[i - 1], BIASES[i - 1]));
         }
     }
 
