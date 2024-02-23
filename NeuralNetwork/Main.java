@@ -8,7 +8,7 @@ public class Main extends BaseObject {
     /**
      * Max input value for the Neural Network to use for calculation.
      */
-    private static final int MAX_ADDEND_VALUE = 5;
+    private static final int MAX_ADDEND_VALUE = 15;
 
     /**
      * Max range for the output will be 2 * {@link #MAX_ADDEND_VALUE}
@@ -48,7 +48,7 @@ public class Main extends BaseObject {
      * The number of times the Neural Network will be trained on one of the input
      * addend pairs.
      */
-    private static final long NUMBER_OF_TRAINING_ATTEMPTS = 500000L;
+    private static final long NUMBER_OF_TRAINING_ATTEMPTS = 600000L;
 
     /**
      * String key for the Answer data map entry
@@ -100,6 +100,9 @@ public class Main extends BaseObject {
      */
     private static void testNeuralNetwork(NeuralNetwork nn, int numberOfTests, int inputRange) {
         int output = -1;
+
+        LOGGER.info(String.format("input {%s, %s} -> %s\t%s", "in1", "in2", "out", "diff"));
+        LOGGER.info("------------------------------------");
 
         for (int i = 0; i < numberOfTests; i++) {
             double[] input = { getRandomInt(inputRange), getRandomInt(inputRange) };
@@ -164,7 +167,7 @@ public class Main extends BaseObject {
     private static double[][] calculateAnswers(double[][] input) {
         LOGGER.logMethod("calculateAnswers");
 
-        double[][] answers = new double[inputs.length][11];
+        double[][] answers = new double[inputs.length][NUM_OUTPUT_NODES];
         for (int i = 0; i < input.length; i++) {
             int sum = 0;
             for (int j = 0; j < input[i].length; j++) {
